@@ -83,6 +83,7 @@ const App = () => {
     if (values.workDuration == 0 && values.breakDuration == 0) {
       setDefaultWorkTime(25);
       setDefaultBreakTime(5);
+      setState1(true);
       setInitialState();
       setCurrentWorkTime(convertToSec(defaultWorkTime));
       return;
@@ -112,6 +113,7 @@ const App = () => {
   // Start work timer
   const startWorkTimer = () => {
     setState2(false);
+    setState1(true);
     setTimerStartedState();
     setReset(false);
     if (!formSubmitted) setFormSubmitted(true);
@@ -120,7 +122,6 @@ const App = () => {
     const newInterval = setInterval(() => {
       setCurrentWorkTime(prevData => prevData - 1);
     }, 1000);
-    setState1(true);
     setIntervalId(newInterval);
   }
 
@@ -135,6 +136,7 @@ const App = () => {
   // Start break timer
   const startBreakTimer = () => {
     setState1(false);
+    setState2(true);
     setTimerStartedState();
     setReset(false);
     if (!formSubmitted) setFormSubmitted(true);
@@ -142,7 +144,6 @@ const App = () => {
     const newInterval = setInterval(() => {
       setCurrentBreakTime(prevData => prevData - 1);
     }, 1000)
-    setState2(true);
     setIntervalId(newInterval);
   }
 
