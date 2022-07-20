@@ -173,16 +173,16 @@ const App = () => {
       currentWorkTime === 0
       && formSubmitted
     ){
-      setCurrentTimer('break');
       endWorkTimer();
+      setCurrentTimer('break');
     } 
 
     if (state2 &&
       currentBreakTime === 0
       && formSubmitted
     ) {
-      setCurrentTimer('work');
       endBreakTimer();
+      setCurrentTimer('work');
     }
   }, [currentWorkTime, currentBreakTime,state1,state2]);
 
