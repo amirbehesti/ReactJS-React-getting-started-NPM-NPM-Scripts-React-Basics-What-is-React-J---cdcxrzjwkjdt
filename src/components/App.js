@@ -52,6 +52,7 @@ const App = () => {
     setCurrentWorkTime(convertToSec(25));
     setDefaultWorkTime(25);
     setDefaultBreakTime(5);
+    setState1(true);
   }
 
   // Timer started state
