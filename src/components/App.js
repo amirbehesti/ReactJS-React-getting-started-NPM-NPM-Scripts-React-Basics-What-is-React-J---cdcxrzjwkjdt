@@ -130,7 +130,6 @@ const App = () => {
   const endWorkTimer = () => {
     if (intervalId) clearInterval(intervalId);
     setCurrentWorkTime(convertToSec(formData.workDuration));
-    setCurrentTimer('break');
     alert("work duration is over");
   }
 
@@ -152,7 +151,6 @@ const App = () => {
   const endBreakTimer = () => {
     if (intervalId) clearInterval(intervalId);
     setCurrentBreakTime(convertToSec(formData.breakDuration));
-    setCurrentTimer('work');
     alert("break duration is over");
   }
 
@@ -174,12 +172,18 @@ const App = () => {
     if ( state1 &&
       currentWorkTime === 0
       && formSubmitted
-    ) endWorkTimer();
+    ){
+      setCurrentTimer('break');
+      endWorkTimer();
+    } 
 
     if (state2 &&
       currentBreakTime === 0
       && formSubmitted
-    ) endBreakTimer();
+    ) {
+      setCurrentTimer('work');
+      endBreakTimer();
+    }
   }, [currentWorkTime, currentBreakTime,state1,state2]);
 
   useEffect(() => {
