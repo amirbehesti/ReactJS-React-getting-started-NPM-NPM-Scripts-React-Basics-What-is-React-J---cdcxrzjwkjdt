@@ -15,6 +15,8 @@ const App = () => {
   const [defaultWorkTime, setDefaultWorkTime] = useState(25);
   const [defaultBreakTime, setDefaultBreakTime] = useState(5);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [state1, setState1] = useState(false);
+  const [state2, setState2] = useState(false);
   const [intervalId, setIntervalId] = useState();
   const [reset, setReset] = useState(false);
   const [formData, setFormData] = useState({
@@ -78,18 +80,17 @@ const App = () => {
     e.preventDefault();
     const data = new FormData(e.target);
     const values = Object.fromEntries(data.entries());
-    if (
-      values.workDuration == 0
-      && values.breakDuration == 0
-    ) {
+    if (values.workDuration == 0 && values.breakDuration == 0) {
       setDefaultWorkTime(25);
       setDefaultBreakTime(5);
       setInitialState();
       setCurrentWorkTime(convertToSec(defaultWorkTime));
       return;
+    }else{
+      setFormData({ ...values });
+      setFormSubmitted(true);
     }
-    setFormData({ ...values });
-    setFormSubmitted(true);
+
   }
 
   // Set timer value
@@ -108,6 +109,7 @@ const App = () => {
 
   // Start work timer
   const startWorkTimer = () => {
+    setState2(false);
     setTimerStartedState();
     setReset(false);
     if (!formSubmitted) setFormSubmitted(true);
@@ -116,6 +118,7 @@ const App = () => {
     const newInterval = setInterval(() => {
       setCurrentWorkTime(prevData => prevData - 1);
     }, 1000);
+    setState1(true);
     setIntervalId(newInterval);
   }
 
@@ -124,18 +127,20 @@ const App = () => {
     if (intervalId) clearInterval(intervalId);
     setCurrentWorkTime(convertToSec(formData.workDuration));
     setCurrentTimer('break');
-    alert("work duration over");
+    alert("work duration is over");
   }
 
   // Start break timer
   const startBreakTimer = () => {
+    setState1(false);
     setTimerStartedState();
     setReset(false);
     if (!formSubmitted) setFormSubmitted(true);
     if (intervalId) clearInterval(intervalId);
     const newInterval = setInterval(() => {
       setCurrentBreakTime(prevData => prevData - 1);
-    }, 1000);
+    }, 1000)
+    setState2(true);
     setIntervalId(newInterval);
   }
 
@@ -144,7 +149,7 @@ const App = () => {
     if (intervalId) clearInterval(intervalId);
     setCurrentBreakTime(convertToSec(formData.breakDuration));
     setCurrentTimer('work');
-    alert("break duration over");
+    alert("break duration is over");
   }
 
   // Stop current timer
@@ -162,16 +167,16 @@ const App = () => {
 
   useEffect(() => {
     if (formSubmitted) convertHMS(getCurrentTimer());
-    if (
+    if ( state1 &&
       currentWorkTime === 0
       && formSubmitted
     ) endWorkTimer();
 
-    if (
+    if (state2 &&
       currentBreakTime === 0
       && formSubmitted
     ) endBreakTimer();
-  }, [currentWorkTime, currentBreakTime]);
+  }, [currentWorkTime, currentBreakTime,state1,state2]);
 
   useEffect(() => {
     if (
