@@ -89,6 +89,8 @@ const App = () => {
     }else{
       setFormData({ ...values });
       setFormSubmitted(true);
+      setState1(false);
+      setState2(false);
     }
 
   }
