@@ -94,8 +94,10 @@ const App = () => {
 
   // Set timer value
   const setTimer = () => {
+    setReset(true);
     setCurrentWorkTime(convertToSec(formData.workDuration));
     setCurrentBreakTime(convertToSec(formData.breakDuration));
+    setCurrentTimer('work');
   }
 
   // Get current timer
@@ -107,6 +109,7 @@ const App = () => {
   // Start work timer
   const startWorkTimer = () => {
     setTimerStartedState();
+    setReset(false);
     if (!formSubmitted) setFormSubmitted(true);
     if (!currentWorkTime) setCurrentWorkTime(convertToSec(defaultWorkTime));
     if (intervalId) clearInterval(intervalId);
@@ -127,6 +130,7 @@ const App = () => {
   // Start break timer
   const startBreakTimer = () => {
     setTimerStartedState();
+    setReset(false);
     if (!formSubmitted) setFormSubmitted(true);
     if (intervalId) clearInterval(intervalId);
     const newInterval = setInterval(() => {
