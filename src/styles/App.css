@@ -1,12 +1,75 @@
-h1 {
-    color: #27aedb;
-    text-align: center;
-    }
-    
+@import url('http://fonts.cdnfonts.com/css/seven-segment');
 
-button{
-    color: #27aedb;
+body {
+    background-color: black;
+    font-family: 'Seven Segment', sans-serif;
+}
+
+h1 {
+    color: white;
     text-align: center;
-    justify-content: center;
-    align-items: center;
+}
+
+h3 {
+    color: white;
+}
+
+#main {
+    text-align: center;
+}
+
+input {
+    padding: 5px 5px;
+    margin: 0 5px;
+}
+
+button {
+    padding: 5px 10px;
+    margin: 0 10px;
+    border-radius: 3px;
+}
+
+
+.start-btn {
+    background-color: rgb(17, 198, 17);
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+}
+
+.stop-btn {
+    background-color: rgb(241, 33, 26);
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+}
+
+.reset-btn {
+    background-color: rgb(213, 194, 22);
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+}
+
+.set-btn {
+    background-color: rgb(17, 198, 17);
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+    background-color: aliceblue;
+    color: gray;
+    border: none;
+}
+
+input:disabled {
+    cursor: not-allowed;
 }
