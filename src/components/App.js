@@ -1,288 +1,139 @@
-import React, { Component, useEffect, useState } from "react";
-import '../styles/App.css';
-
-const App = () => {
-  const [currentWorkTime, setCurrentWorkTime] = useState(25 * 60);
-  const [currentBreakTime, setCurrentBreakTime] = useState(5 * 60);
-  const [renderTime, setRenderTime] = useState("25:00");
-  const [currentTimer, setCurrentTimer] = useState("work");
-  const [isStartButtonDisabled, setIsStartButtonDisabled] = useState(false);
-  const [isStopButtonDisabled, setIsStopButtonDisabled] = useState(true);
-  const [isResetButtonDisabled, setIsResetButtonDisabled] = useState(true);
-  const [isSetButtonDisabled, setIsSetButtonDisabled] = useState(false);
-  const [isWorkInputDisabled, setIsWorkInputDisabled] = useState(false);
-  const [isBreakInputDisabled, setIsBreakInputDisabled] = useState(false);
-  const [defaultWorkTime, setDefaultWorkTime] = useState(25);
-  const [defaultBreakTime, setDefaultBreakTime] = useState(5);
-  const [formSubmitted, setFormSubmitted] = useState(false);
-  const [state1, setState1] = useState(false);
-  const [state2, setState2] = useState(false);
-  const [intervalId, setIntervalId] = useState();
-  const [reset, setReset] = useState(false);
-  const [formData, setFormData] = useState({
-    workDuration: "",
-    breakDuration: "",
-  });
-
-  const convertHMS = (value) => {
-    const sec = parseInt(value);
-    let hours = Math.floor(sec / 3600); // get hours
-    let minutes = Math.floor((sec - (hours * 3600)) / 60); // get minutes
-    let seconds = sec - (hours * 3600) - (minutes * 60); //  get seconds
-    if (hours < 10) { hours = "0" + hours; }
-    if (minutes < 10) { minutes = "0" + minutes; }
-    if (seconds < 10) { seconds = "0" + seconds; }
-    setRenderTime(minutes + ":" + seconds); // Return is MM : SS
-  }
-
-  const convertToSec = (minute) => {
-    return parseInt(minute) * 60;
-  }
-
-  // Initial state of timer
-  const setInitialState = () => {
-    setIsStartButtonDisabled(false);
-    setIsStopButtonDisabled(true);
-    setIsResetButtonDisabled(true);
-    setIsWorkInputDisabled(false);
-    setIsBreakInputDisabled(false);
-    setIsSetButtonDisabled(false);
-    setRenderTime("25:00");
-    setCurrentTimer('work');
-    setCurrentWorkTime(convertToSec(25));
-    setDefaultWorkTime(25);
-    setDefaultBreakTime(5);
-    setState1(true);
-  }
-
-  // Timer started state
-  const setTimerStartedState = () => {
-    setIsWorkInputDisabled(true);
-    setIsBreakInputDisabled(true);
-    setIsStartButtonDisabled(true);
-    setIsResetButtonDisabled(false);
-    setIsStopButtonDisabled(false);
-    setIsSetButtonDisabled(true);
-  }
-
-  // Timer stopped state
-  const setTimerStoppedState = () => {
-    setIsWorkInputDisabled(false);
-    setIsBreakInputDisabled(false);
-    setIsStartButtonDisabled(false);
-    setIsResetButtonDisabled(false);
-    setIsStopButtonDisabled(true);
-    setIsSetButtonDisabled(false);
-  }
-
-  // Handle submit
-  const handleSubmit = (e) => {
-    setFormSubmitted(false);
+import React, { useState, useEffect } from "react";
+function App() {
+  const [workDuration, setWorkDuration] = useState(25);
+  const [breakDuration, setBreakDuration] = useState(5);
+  const [flag, setFlag] = useState(false);
+  const [worksecond, setWorkSecond] = useState(1500);
+  const [breaksecond, setBreakSecond] = useState(300);
+  const [type, setType] = useState("work");
+  const [resetFlag, setResetFalg] = useState(true);
+  useEffect(() => {
+    if (flag && type === "work") {
+      if (worksecond > 0) {
+        const timer = setTimeout(() => setWorkSecond(worksecond - 1), 1000);
+        return () => clearTimeout(timer);
+      }
+      if (worksecond === 0) {
+        alert("work duration is over");
+        setType("break");
+        setWorkSecond(workDuration * 60);
+      }
+    }
+    if (flag && type === "break") {
+      if (breaksecond > 0) {
+        const timer = setTimeout(() => setBreakSecond(breaksecond - 1), 1000);
+        return () => clearTimeout(timer);
+      }
+      if (breaksecond === 0) {
+        alert("break duration is over");
+        setType("work");
+        setBreakSecond(breakDuration * 60);
+      }
+    }
+  }, [flag, type, worksecond, breaksecond, workDuration, breakDuration]);
+  const reset = () => {
+    setResetFalg(true);
+    setFlag(false);
+    setType("work");
+    setWorkDuration(25);
+    setBreakDuration(5);
+    setBreakSecond(300);
+    setWorkSecond(1500);
+  };
+  const convertToStandardFormat = (sec) => {
+    let m = parseInt(sec / 60).toString();
+    let s = parseInt(sec % 60).toString();
+    if (m.length === 1) m = "0" + m;
+    if (s.length === 1) s = "0" + s;
+    return m + ":" + s;
+  };
+  const validateData = (data) => {
+    if (!isNaN(data) && parseInt(data) >= 0) {
+      return parseInt(data);
+    } else return "";
+  };
+  const setDuration = (e) => {
     e.preventDefault();
-    const data = new FormData(e.target);
-    const values = Object.fromEntries(data.entries());
-    if (values.workDuration == 0 && values.breakDuration == 0) {
-      setDefaultWorkTime(25);
-      setDefaultBreakTime(5);
-      setState1(true);
-      setInitialState();
-      setCurrentWorkTime(convertToSec(defaultWorkTime));
+    if (breakDuration + workDuration <= 0) {
+      reset();
       return;
-    }else{
-      setFormData({ ...values });
-      setFormSubmitted(true);
-      setState1(false);
-      setState2(false);
     }
-
-  }
-
-  // Set timer value
-  const setTimer = () => {
-    setReset(true);
-    setCurrentWorkTime(convertToSec(formData.workDuration));
-    setCurrentBreakTime(convertToSec(formData.breakDuration));
-    setCurrentTimer('work');
-  }
-
-  // Get current timer
-  const getCurrentTimer = () => {
-    if (currentTimer === 'work') return currentWorkTime;
-    else return currentBreakTime;
-  }
-
-  // Start work timer
-  const startWorkTimer = () => {
-    setState2(false);
-    setState1(true);
-    setTimerStartedState();
-    setReset(false);
-    if (!formSubmitted) setFormSubmitted(true);
-    if (!currentWorkTime) setCurrentWorkTime(convertToSec(defaultWorkTime));
-    if (intervalId) clearInterval(intervalId);
-    const newInterval = setInterval(() => {
-      setCurrentWorkTime(prevData => prevData - 1);
-    }, 1000);
-    setIntervalId(newInterval);
-  }
-
-  // End work timer
-  const endWorkTimer = () => {
-    if (intervalId) clearInterval(intervalId);
-    setCurrentWorkTime(convertToSec(formData.workDuration));
-    alert("work duration is over");
-  }
-
-  // Start break timer
-  const startBreakTimer = () => {
-    setState1(false);
-    setState2(true);
-    setTimerStartedState();
-    setReset(false);
-    if (!formSubmitted) setFormSubmitted(true);
-    if (intervalId) clearInterval(intervalId);
-    const newInterval = setInterval(() => {
-      setCurrentBreakTime(prevData => prevData - 1);
-    }, 1000)
-    setIntervalId(newInterval);
-  }
-
-  // End break timer
-  const endBreakTimer = () => {
-    if (intervalId) clearInterval(intervalId);
-    setCurrentBreakTime(convertToSec(formData.breakDuration));
-    alert("break duration is over");
-  }
-
-  // Stop current timer
-  const stopTimer = () => {
-    setTimerStoppedState();
-    if (intervalId) clearInterval(intervalId);
-  }
-
-  // Reset current timer
-  const resetCounter = () => {
-    setReset(true);
-    if (intervalId) clearInterval(intervalId);
-    setInitialState();
-  }
-
-  useEffect(() => {
-    if (formSubmitted) convertHMS(getCurrentTimer());
-    if ( state1 &&
-      currentWorkTime === 0
-      && formSubmitted
-    ){
-      endWorkTimer();
-      setCurrentTimer('break');
-    } 
-
-    if (state2 &&
-      currentBreakTime === 0
-      && formSubmitted
-    ) {
-      endBreakTimer();
-      setCurrentTimer('work');
-    }
-  }, [currentWorkTime, currentBreakTime,state1,state2]);
-
-  useEffect(() => {
-    if (
-      formSubmitted
-      && currentTimer === 'work'
-      && !reset
-    ) startWorkTimer();
-
-    if (
-      formSubmitted
-      && currentTimer === 'break'
-      && !reset
-    ) startBreakTimer();
-  }, [currentTimer]);
-
-  useEffect(() => {
-    if (defaultWorkTime < 0) setDefaultWorkTime("");
-    if (defaultBreakTime < 0) setDefaultBreakTime("");
-  }, [defaultWorkTime, defaultBreakTime]);
-
-  useEffect(() => {
-    if (
-      formData.workDuration.length
-      && formData.breakDuration.length
-    ) setTimer();
-  }, [formData]);
-
+    setResetFalg(false);
+    setType("work");
+    setWorkSecond(workDuration * 60);
+    setBreakSecond(breakDuration * 60);
+  };
   return (
-    <div id="main">
+    <div className="App" style={{ textAlign: "center" }}>
       <div className="clock">
-        <h1 className="timer">{renderTime}</h1>
-        <h3>{currentTimer === 'work' ? 'Work' : 'Break'}-Time</h3>
+        <h1 className="timer">
+          {type === "work"
+            ? convertToStandardFormat(worksecond)
+            : convertToStandardFormat(breaksecond)}
+        </h1>
+        <h3>{type === "work" ? "Work" : "Break"}-Time</h3>
       </div>
       <div className="control">
         <button
-          className="start-btn"
-          onClick={currentTimer === 'work' ? startWorkTimer : startBreakTimer}
-          data-testid='start-btn'
-          disabled={isStartButtonDisabled}
+          data-testid="start-btn"
+          key="start"
+          onClick={() => {
+            setFlag(true);
+            setResetFalg(false);
+          }}
+          disabled={flag}
         >
-          Start
+          start
         </button>
-
         <button
-          className="stop-btn"
-          onClick={stopTimer}
-          data-testid='stop-btn'
-          disabled={isStopButtonDisabled}
+          data-testid="stop-btn"
+          key="stop"
+          onClick={() => {
+            setFlag(false);
+            setResetFalg(false);
+          }}
+          disabled={!flag}
         >
           Stop
         </button>
-
         <button
-          className="reset-btn"
-          onClick={resetCounter}
-          data-testid='reset-btn'
-          disabled={isResetButtonDisabled}
+          data-testid="reset-btn"
+          key="reset"
+          onClick={() => {
+            reset();
+          }}
+          disabled={resetFlag}
         >
           Reset
         </button>
       </div>
-      <br />
+      <br></br>
       <div className="parameters">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={setDuration}>
           <input
-            disabled={isWorkInputDisabled}
-            name="workDuration"
             data-testid="work-duration"
             placeholder="work duration"
-            required type="Number"
-            value={defaultWorkTime}
-            onChange={e => {
-              setDefaultWorkTime(+e.target.value);
-            }}
-          />
+            required
+            type="Number"
+            value={workDuration}
+            disabled={flag}
+            onChange={(e) => setWorkDuration(validateData(e.target.value))}
+          ></input>
           <input
-            disabled={isBreakInputDisabled}
-            name="breakDuration"
             data-testid="break-duration"
             placeholder="break duration"
-            required type="Number"
-            value={defaultBreakTime}
-            onChange={e => {
-              setDefaultBreakTime(+e.target.value);
-            }}
-          />
-          <button
-            className="set-btn"
-            disabled={isSetButtonDisabled}
-            data-testid="set-btn"
-            type="submit">
+            required
+            type="Number"
+            value={breakDuration}
+            disabled={flag}
+            onChange={(e) => setBreakDuration(validateData(e.target.value))}
+          ></input>
+          <button data-testid="set-btn" type="submit" disabled={flag}>
             set
           </button>
         </form>
       </div>
     </div>
-  )
+  );
 }
-
-
 export default App;
